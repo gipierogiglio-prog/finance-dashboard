@@ -16,8 +16,16 @@ export class ApiError extends Error {
   }
 }
 
-async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
+type Params = Record<string, string | number | undefined>;
+
+async function fetchApi<T>(endpoint: string, params?: Params, options?: RequestInit): Promise<T> {
   const url = new URL(`${API_BASE}${endpoint}`);
+  
+  if (params) {
+    Object.entries(params).forEach(([key, val]) => {
+      if (val !== undefined) url.searchParams.set(key, String(val));
+    });
+  }
   
   const res = await fetch(url.toString(), {
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -32,9 +40,9 @@ async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> 
 }
 
 export const api = {
-  get: <T>(endpoint: string) => fetchApi<T>(endpoint),
+  get: <T>(endpoint: string, params?: Params) => fetchApi<T>(endpoint, params),
   post: <T>(endpoint: string, body?: unknown) =>
-    fetchApi<T>(endpoint, {
+    fetchApi<T>(endpoint, undefined, {
       method: 'POST',
       body: body ? JSON.stringify(body) : undefined,
     }),

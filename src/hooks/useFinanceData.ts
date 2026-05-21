@@ -123,17 +123,17 @@ export function useFinanceData(periodDays: number = 30): FinanceData {
       const [accountsRes, txsRes, summaryRes, categoriesRes] = await Promise.all([
         api.get<any>('/accounts'),
         api.get<any>('/transactions', {
-          date_from: dateFrom,
-          date_to: dateTo,
-          page_size: 200,
+          dateFrom,
+          dateTo,
+          limit: 200,
         }),
         api.get<any>('/transactions/summary', {
-          date_from: dateFrom,
-          date_to: dateTo,
+          dateFrom,
+          dateTo,
         }),
         api.get<any>('/categories', {
-          date_from: dateFrom,
-          date_to: dateTo,
+          dateFrom,
+          dateTo,
         }),
       ]);
 
