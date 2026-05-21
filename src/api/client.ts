@@ -3,7 +3,11 @@
  * Calls https://financeiro-api.devgiglio.uk/api/* endpoints.
  */
 
-const API_BASE = 'https://financeiro-api.devgiglio.uk/api';
+// Backend API base URL
+// Uses production URL if on financeiro domain, fallback for local dev
+const API_BASE = window.location.hostname.includes('financeiro')
+  ? 'https://financeiro-api.devgiglio.uk/api'
+  : 'http://localhost:8000/api';
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
