@@ -6,8 +6,8 @@
  * which wraps this and falls back to mock data.
  */
 
-// Use backend API domain in production, fallback to localhost for dev
-const API_BASE = import.meta.env.VITE_API_BASE || 'https://api.financeiro.devgiglio.uk/api';
+// Use relative path in production (nginx proxy handles /api/*), fallback to localhost for dev
+const API_BASE = import.meta.env.VITE_API_BASE || '/api';
 
 interface FetchOptions {
   method?: string;
