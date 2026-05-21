@@ -8,6 +8,19 @@ html {
 
 body {
   @apply antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Ensure minimum touch target on mobile */
+@media (max-width: 640px) {
+  button, select, input, a, [role="button"] {
+    cursor: pointer;
+  }
+  
+  /* Prevent horizontal scroll from overflowing elements */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 /* Chart.js override for dark mode */

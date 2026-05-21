@@ -11,9 +11,9 @@ export function Overview({ accounts, summary }: OverviewProps) {
   const isPositive = summary.net30d >= 0;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       {/* Saldo Total */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 sm:p-5 transition-colors">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Saldo Total</span>
           <span className="text-lg">🏦</span>
@@ -27,7 +27,7 @@ export function Overview({ accounts, summary }: OverviewProps) {
       </div>
 
       {/* Receitas do Período */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 sm:p-5 transition-colors">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Receitas</span>
           <span className="text-lg">📈</span>
@@ -39,7 +39,7 @@ export function Overview({ accounts, summary }: OverviewProps) {
       </div>
 
       {/* Despesas do Período */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 sm:p-5 transition-colors">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Despesas</span>
           <span className="text-lg">📉</span>
@@ -51,7 +51,7 @@ export function Overview({ accounts, summary }: OverviewProps) {
       </div>
 
       {/* Saldo do Período */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 sm:p-5 transition-colors">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Saldo do Período</span>
           <span className="text-lg">{isPositive ? '✅' : '⚠️'}</span>

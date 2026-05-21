@@ -54,12 +54,12 @@ export function CategoryChart({ data }: CategoryChartProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 sm:p-5 transition-colors">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">
         Gastos por Categoria
       </h3>
-      <div className="flex flex-col sm:flex-row items-center gap-6">
-        <div className="h-56 w-56 flex-shrink-0">
+      <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+        <div className="h-48 w-48 sm:h-56 sm:w-56 flex-shrink-0">
           {data.length > 0 ? (
             <Doughnut data={chartData} options={options} />
           ) : (
@@ -82,11 +82,11 @@ export function CategoryChart({ data }: CategoryChartProps) {
                     {cat.name}
                   </span>
                 </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <span className="text-xs text-gray-400 dark:text-gray-500 w-10 text-right">
+                <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                  <span className="text-xs text-gray-400 dark:text-gray-500 w-8 sm:w-10 text-right">
                     {pct}%
                   </span>
-                  <span className="text-sm font-medium text-gray-900 dark:text-white w-24 text-right">
+                  <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white w-20 sm:w-24 text-right">
                     {formatCurrency(cat.value)}
                   </span>
                 </div>

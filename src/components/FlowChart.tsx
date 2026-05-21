@@ -125,11 +125,11 @@ export function FlowChart({ data }: FlowChartProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 sm:p-5 transition-colors">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">
         Fluxo Financeiro
       </h3>
-      <div className="h-72">
+      <div className="h-56 sm:h-72">
         <Bar data={chartData} options={options} />
       </div>
     </div>

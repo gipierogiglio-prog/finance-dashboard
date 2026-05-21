@@ -92,14 +92,14 @@ function App() {
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">💰</span>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+          <div className="flex items-center justify-between h-16 gap-1">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <span className="text-xl sm:text-2xl flex-shrink-0">💰</span>
+              <h1 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white truncate">
                 Financeiro
               </h1>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
               {/* Connection Indicator */}
               <div className="hidden sm:flex items-center gap-1.5 text-xs px-2">
                 {isOnline ? (
@@ -120,25 +120,30 @@ function App() {
                 onClick={handleSync}
                 disabled={syncing}
                 title={lastSyncLabel}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg
+                className="flex items-center justify-center gap-1.5 px-2 sm:px-3 py-2 sm:py-1.5 text-sm font-medium rounded-lg
                            bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800
                            disabled:opacity-50 disabled:cursor-not-allowed
-                           transition-colors shadow-sm"
+                           transition-colors shadow-sm min-h-[44px]"
               >
-                <span className={`${syncing ? 'animate-spin' : ''}`}>
+                <span className={`text-base ${syncing ? 'animate-spin' : ''}`}>
                   🔄
                 </span>
                 <span className="hidden sm:inline">{syncing ? 'Sincronizando...' : 'Sincronizar'}</span>
               </button>
 
-              <PeriodFilter value={period} onChange={setPeriod} />
+              <div className="hidden sm:block">
+                <PeriodFilter value={period} onChange={setPeriod} />
+              </div>
+              <div className="sm:hidden">
+                <PeriodFilter value={period} onChange={setPeriod} compact />
+              </div>
               <ThemeToggle isDark={isDark} onToggle={() => setIsDark(!isDark)} />
             </div>
           </div>
 
           {/* Sync message */}
           {syncMessage && (
-            <div className="pb-3 -mt-1">
+            <div className="pb-3 -mt-1 px-1">
               <p className={`text-xs ${
                 syncMessage.includes('Erro')
                   ? 'text-rose-500 dark:text-rose-400'
@@ -190,14 +195,14 @@ function App() {
         <div className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
             <p className="text-xs text-amber-700 dark:text-amber-400 text-center">
-              ⚠️ Backend indisponível — exibindo dados mockados. Inicie o servidor em localhost:8000 para ver dados reais.
+              ⚠️ Backend indisponível — exibindo dados mockados.
             </p>
           </div>
         </div>
       )}
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
         {/* Overview */}
         <Overview accounts={accounts} summary={summary} />
 
@@ -210,7 +215,7 @@ function App() {
         {/* Transactions + placeholder */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <TransactionsList transactions={transactions} limit={8} />
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800 p-5 flex items-center justify-center">
+          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800 p-4 sm:p-5 flex items-center justify-center">
             <div className="text-center">
               <span className="text-3xl block mb-2">🏗️</span>
               <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">

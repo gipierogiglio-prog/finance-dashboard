@@ -11,29 +11,29 @@ export function TransactionsList({ transactions, limit = 10 }: TransactionsListP
   const displayed = transactions.slice(0, limit);
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 transition-colors">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 sm:p-5 transition-colors">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">
         Transações Recentes
       </h3>
       <div className="space-y-1">
         {displayed.map((tx) => (
           <div
             key={tx.id}
-            className="flex items-center justify-between py-3 px-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+            className="flex items-center justify-between py-2.5 sm:py-3 px-1.5 sm:px-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors min-h-[52px]"
           >
-            <div className="flex items-center gap-3 min-w-0">
-              <span className="text-xl flex-shrink-0">{getCategoryIcon(tx.category)}</span>
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[200px] sm:max-w-xs">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 mr-2">
+              <span className="text-lg sm:text-xl flex-shrink-0">{getCategoryIcon(tx.category)}</span>
+              <div className="min-w-0 max-w-[130px] sm:max-w-xs">
+                <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white truncate">
                   {tx.description}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                   {formatDate(tx.date)} · {tx.category}
                 </p>
               </div>
             </div>
             <span
-              className={`text-sm font-semibold flex-shrink-0 ml-2 ${
+              className={`text-xs sm:text-sm font-semibold flex-shrink-0 whitespace-nowrap ${
                 tx.type === 'CREDIT'
                   ? 'text-emerald-600 dark:text-emerald-400'
                   : 'text-rose-600 dark:text-rose-400'
