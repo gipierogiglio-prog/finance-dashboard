@@ -1,79 +1,41 @@
 /**
- * API Client for the Garrinha Finance Backend.
- *
- * Calls http://localhost:8000/api/* endpoints with fetch().
- * Falls back to empty/default data on error — components use the hook
- * which wraps this and falls back to mock data.
+ * API client for the Financeiro Backend.
+ * Calls https://financeiro-api.devgiglio.uk/api/* endpoints.
  */
 
-// Use relative path in production (nginx proxy handles /api/*), fallback to localhost for dev
-const API_BASE = import.meta.env.VITE_API_BASE || '/api';
-
-interface FetchOptions {
-  method?: string;
-  body?: unknown;
-  params?: Record<string, string | number | undefined>;
-}
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://financeiro-api.devgiglio.uk/api';
 
 export class ApiError extends Error {
-  status: number;
-  constructor(message: string, status: number) {
+  constructor(public status: number, message: string) {
     super(message);
     this.name = 'ApiError';
-    this.status = status;
   }
 }
 
-function buildUrl(endpoint: string, params?: Record<string, string | number | undefined>): string {
+async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = new URL(`${API_BASE}${endpoint}`);
-  if (params) {
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        url.searchParams.set(key, String(value));
-      }
-    });
+  
+  const res = await fetch(url.toString(), {
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    ...options,
+  });
+
+  if (!res.ok) {
+    throw new ApiError(res.status, `API error: ${res.statusText}`);
   }
-  return url.toString();
+
+  return res.json();
 }
 
-export async function fetchApi<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
-  const { method = 'GET', body, params } = options;
-  const url = buildUrl(endpoint, params);
-
-  const fetchOptions: RequestInit = {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-  };
-
-  if (body && method !== 'GET') {
-    fetchOptions.body = JSON.stringify(body);
-  }
-
-  const response = await fetch(url, fetchOptions);
-
-  if (!response.ok) {
-    throw new ApiError(
-      `API error: ${response.status} ${response.statusText}`,
-      response.status
-    );
-  }
-
-  return response.json() as Promise<T>;
-}
-
-// Convenience exports
 export const api = {
-  get: <T>(endpoint: string, params?: Record<string, string | number | undefined>) =>
-    fetchApi<T>(endpoint, { params }),
-
-  post: <T>(endpoint: string, body?: unknown, params?: Record<string, string | number | undefined>) =>
-    fetchApi<T>(endpoint, { method: 'POST', body, params }),
+  get: <T>(endpoint: string) => fetchApi<T>(endpoint),
+  post: <T>(endpoint: string, body?: unknown) =>
+    fetchApi<T>(endpoint, {
+      method: 'POST',
+      body: body ? JSON.stringify(body) : undefined,
+    }),
 };
 
-/** Check if the API is reachable */
 export async function checkApiConnection(): Promise<boolean> {
   try {
     const controller = new AbortController();
