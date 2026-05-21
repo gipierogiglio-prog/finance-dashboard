@@ -3,7 +3,7 @@
  * Calls https://financeiro-api.devgiglio.uk/api/* endpoints.
  */
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'https://financeiro-api.devgiglio.uk/api';
+const API_BASE = 'https://financeiro-api.devgiglio.uk/api';
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
