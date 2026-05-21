@@ -12,6 +12,11 @@ export interface Transaction {
   amount: number;
   type: 'CREDIT' | 'DEBIT';
   category: string;
+  status?: 'POSTED' | 'PENDING';
+  account_id?: string;
+  account_name?: string;
+  merchant?: string | null;
+  payment_method?: string;
 }
 
 export interface FinanceSummary {

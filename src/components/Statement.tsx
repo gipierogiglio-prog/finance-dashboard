@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Transaction } from '../types';
 import { formatCurrency, formatDate, getCategoryIcon } from '../utils/format';
+import { TransactionDetail } from './TransactionDetail';
 
 interface StatementProps {
   transactions: Transaction[];
@@ -15,6 +16,18 @@ export function Statement({ transactions }: StatementProps) {
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
   const [sortKey, setSortKey] = useState<SortKey>('date');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+
+  const openDetail = (tx: Transaction) => {
+    setSelectedTx(tx);
+    setDetailOpen(true);
+  };
+
+  const closeDetail = () => {
+    setDetailOpen(false);
+    setTimeout(() => setSelectedTx(null), 200);
+  };
 
   const categories = Array.from(new Set(transactions.map((t) => t.category))).sort();
 
@@ -54,6 +67,7 @@ export function Statement({ transactions }: StatementProps) {
   };
 
   return (
+    <>
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 sm:p-5 transition-colors">
       <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">Extrato</h3>
 
@@ -138,7 +152,8 @@ export function Statement({ transactions }: StatementProps) {
               filtered.map((tx, idx) => (
                 <tr
                   key={tx.id}
-                  className="border-b border-gray-50 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
+                  onClick={() => openDetail(tx)}
+                  className="border-b border-gray-50 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors cursor-pointer"
                 >
                   <td className="py-2.5 sm:py-3 px-1.5 sm:px-2 text-gray-400 dark:text-gray-500 text-xs hidden sm:table-cell">
                     {idx + 1}
@@ -179,5 +194,12 @@ export function Statement({ transactions }: StatementProps) {
         {filtered.length} de {transactions.length} transações
       </p>
     </div>
+
+      <TransactionDetail
+        transaction={selectedTx}
+        isOpen={detailOpen}
+        onClose={closeDetail}
+      />
+    </>
   );
 }
