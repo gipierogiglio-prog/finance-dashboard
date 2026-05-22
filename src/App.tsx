@@ -6,7 +6,9 @@ import { CategoryChart } from './components/CategoryChart';
 import { Statement } from './components/Statement';
 import { PeriodFilter } from './components/PeriodFilter';
 import { ThemeToggle } from './components/ThemeToggle';
+import { LoginPage } from './components/LoginPage';
 import { useFinanceData, fetchSystemStatus, triggerSync } from './hooks/useFinanceData';
+import { hasToken, clearToken } from './api/client';
 import { SystemStatus } from './types';
 import { formatCurrency } from './utils/format';
 
@@ -22,6 +24,29 @@ function formatDate(dateStr: string): string {
 }
 
 function App() {
+  // ── Auth state ──────────────────────────────────────────────
+  const [authenticated, setAuthenticated] = useState(() => hasToken());
+
+  const handleLogin = useCallback(() => {
+    setAuthenticated(true);
+  }, []);
+
+  const handleLogout = useCallback(() => {
+    clearToken();
+    setAuthenticated(false);
+  }, []);
+
+  // Listen for 401 unauthorized events from the API client
+  useEffect(() => {
+    const onUnauthorized = () => {
+      clearToken();
+      setAuthenticated(false);
+    };
+    window.addEventListener('auth:unauthorized', onUnauthorized);
+    return () => window.removeEventListener('auth:unauthorized', onUnauthorized);
+  }, []);
+
+  // ── Theme ───────────────────────────────────────────────────
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme');
@@ -31,6 +56,7 @@ function App() {
     return false;
   });
 
+  // ── Dashboard data ───────────────────────────────────────────
   const [period, setPeriod] = useState(30);
   const { accounts, transactions, summary, dailyFlow, categoryExpenses, loading, isOnline } =
     useFinanceData(period);
@@ -87,6 +113,12 @@ function App() {
     ? `Última sincronização: ${formatDate(lastSync.synced_at)}`
     : 'Nunca sincronizado';
 
+  // ── Show login if not authenticated ─────────────────────────
+  if (!authenticated) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  // ── Authenticated — render dashboard ────────────────────────
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       {/* Header */}
@@ -129,6 +161,19 @@ function App() {
                   🔄
                 </span>
                 <span className="hidden sm:inline">{syncing ? 'Sincronizando...' : 'Sincronizar'}</span>
+              </button>
+
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                title="Sair"
+                className="flex items-center justify-center px-2 sm:px-3 py-2 sm:py-1.5 text-sm font-medium rounded-lg
+                           text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700
+                           active:bg-gray-200 dark:active:bg-gray-600
+                           transition-colors min-h-[44px]"
+              >
+                <span className="text-base">🚪</span>
+                <span className="hidden sm:inline ml-1">Sair</span>
               </button>
 
               <div className="hidden sm:block">
