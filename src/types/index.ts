@@ -75,3 +75,18 @@ export interface PluggyConfig {
   configured: boolean;
   hasItem: boolean;
 }
+
+export interface SyncResult {
+  success: boolean;
+  items_count: number;
+  accounts_count: number;
+  transactions_count: number;
+  investments_count: number;
+  error_message: string | null;
+  oauth_url: string | null;
+}
+
+export interface SyncResponse {
+  message: string;
+  sync_result?: SyncResult;
+}

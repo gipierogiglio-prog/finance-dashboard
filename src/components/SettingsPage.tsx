@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../api/client';
-import { PluggyConfig } from '../types';
+import { PluggyConfig, SyncResponse } from '../types';
 
 interface SettingsPageProps {
   onBack: () => void;
@@ -14,7 +14,7 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [syncing, setSyncing] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [message, setMessage] = useState<{ type: 'success' | 'error' | 'oauth'; text: string; oauthUrl?: string } | null>(null);
 
   // Load current config
   useEffect(() => {
@@ -56,8 +56,17 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
     try {
       // First save, then test with a sync
       await api.put('/user/pluggy-config', { client_id: clientId, client_secret: clientSecret });
-      const result = await api.post<{ message: string }>('/sync');
-      setMessage({ type: 'success', text: result.message || '✅ Conexão bem-sucedida!' });
+      const result = await api.post<{ message: string; sync_result?: { oauth_url?: string } }>('/sync');
+      
+      if (result.sync_result?.oauth_url) {
+        setMessage({
+          type: 'oauth',
+          text: '🔐 Autorização necessária! Clique no link abaixo para conectar sua conta MeuPluggy:',
+          oauthUrl: result.sync_result.oauth_url
+        });
+      } else {
+        setMessage({ type: 'success', text: result.message || '✅ Conexão bem-sucedida!' });
+      }
     } catch (err: any) {
       setMessage({ type: 'error', text: err.message || 'Erro ao testar conexão' });
     } finally {
@@ -70,8 +79,17 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
     setMessage(null);
 
     try {
-      const result = await api.post<{ message: string }>('/sync');
-      setMessage({ type: 'success', text: result.message || '✅ Sincronização concluída!' });
+      const result = await api.post<{ message: string; sync_result?: { oauth_url?: string } }>('/sync');
+      
+      if (result.sync_result?.oauth_url) {
+        setMessage({
+          type: 'oauth',
+          text: '🔐 Autorização necessária! Clique no link abaixo para conectar sua conta MeuPluggy:',
+          oauthUrl: result.sync_result.oauth_url
+        });
+      } else {
+        setMessage({ type: 'success', text: result.message || '✅ Sincronização concluída!' });
+      }
     } catch (err: any) {
       setMessage({ type: 'error', text: err.message || 'Erro ao sincronizar' });
     } finally {
@@ -201,6 +219,8 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
                 className={`rounded-lg px-3 py-2 border ${
                   message.type === 'success'
                     ? 'bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-800'
+                    : message.type === 'oauth'
+                    ? 'bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800'
                     : 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800'
                 }`}
               >
@@ -208,11 +228,25 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
                   className={`text-sm ${
                     message.type === 'success'
                       ? 'text-emerald-600 dark:text-emerald-400'
+                      : message.type === 'oauth'
+                      ? 'text-amber-700 dark:text-amber-300'
                       : 'text-red-600 dark:text-red-400'
                   }`}
                 >
                   {message.text}
                 </p>
+                {message.type === 'oauth' && message.oauthUrl && (
+                  <a
+                    href={message.oauthUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg
+                               bg-blue-600 hover:bg-blue-700 active:bg-blue-800
+                               text-white text-sm font-medium transition-colors"
+                  >
+                    🔗 Autorizar MeuPluggy
+                  </a>
+                )}
               </div>
             )}
 
