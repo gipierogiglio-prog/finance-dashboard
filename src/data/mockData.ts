@@ -3,9 +3,21 @@ import { Account, Transaction, FinanceSummary } from '../types';
 export const accounts: Account[] = [
   {
     name: 'Mercado Pago',
+    type: 'BANK',
     subtype: 'CHECKING_ACCOUNT',
     balance: 62.02,
     currency: 'BRL',
+    credit_limit: null,
+    credit_available: null,
+  },
+  {
+    name: 'Gold',
+    type: 'CREDIT',
+    subtype: 'CREDIT_CARD',
+    balance: 2593.61,
+    currency: 'BRL',
+    credit_limit: 3950.0,
+    credit_available: 1356.39,
   },
 ];
 

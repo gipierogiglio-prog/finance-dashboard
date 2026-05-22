@@ -76,9 +76,12 @@ function mapTransaction(tx: any): Transaction {
 function mapAccount(acc: any): Account {
   return {
     name: acc.name,
+    type: acc.type || 'BANK',
     subtype: acc.subtype,
     balance: acc.balance,
     currency: acc.currency || 'BRL',
+    credit_limit: acc.credit_limit ?? null,
+    credit_available: acc.credit_available ?? null,
   };
 }
 
@@ -149,7 +152,10 @@ export function useFinanceData(periodDays: number = 30): FinanceData {
       const rawIncome = summaryRes.total_income || 0;
       const rawExpenses = summaryRes.total_expenses || 0;
       const absExpenses = Math.abs(rawExpenses);
-      const totalBalance = mappedAccounts.reduce((sum: number, a: Account) => sum + a.balance, 0);
+      // Only BANK accounts contribute to total balance; credit cards show debt separately
+      const totalBalance = mappedAccounts
+        .filter((a: Account) => a.type === 'BANK')
+        .reduce((sum: number, a: Account) => sum + a.balance, 0);
       setSummary({
         totalBalance,
         income30d: rawIncome,
@@ -181,10 +187,13 @@ export function useFinanceData(periodDays: number = 30): FinanceData {
       const cutoffStr = cutoff.toISOString().split('T')[0];
 
       const filteredTxs = mockTransactions.filter((t) => t.date >= cutoffStr);
-      setAccounts(mockAccounts);
+      setAccounts(mockAccounts as Account[]);
 
+      const bankBalance = mockAccounts
+          .filter((a: Account) => a.type === 'BANK')
+          .reduce((s: number, a: Account) => s + a.balance, 0);
       const filteredSummary: FinanceSummary = {
-        totalBalance: mockAccounts.reduce((s, a) => s + a.balance, 0),
+        totalBalance: bankBalance,
         income30d: filteredTxs.filter((t) => t.type === 'CREDIT').reduce((s, t) => s + t.amount, 0),
         expenses30d: filteredTxs.filter((t) => t.type === 'DEBIT').reduce((s, t) => s + t.amount, 0),
         net30d: 0,

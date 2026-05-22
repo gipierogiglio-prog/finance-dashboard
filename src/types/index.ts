@@ -1,8 +1,12 @@
 export interface Account {
+  id?: string;
   name: string;
+  type: string;        // "BANK" | "CREDIT"
   subtype: string;
   balance: number;
   currency: string;
+  credit_limit: number | null;
+  credit_available: number | null;
 }
 
 export interface Transaction {
