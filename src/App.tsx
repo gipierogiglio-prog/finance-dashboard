@@ -7,10 +7,14 @@ import { Statement } from './components/Statement';
 import { PeriodFilter } from './components/PeriodFilter';
 import { ThemeToggle } from './components/ThemeToggle';
 import { LoginPage } from './components/LoginPage';
+import { RegisterPage } from './components/RegisterPage';
+import { SettingsPage } from './components/SettingsPage';
 import { useFinanceData, fetchSystemStatus, triggerSync } from './hooks/useFinanceData';
-import { hasToken, clearToken } from './api/client';
+import { hasToken, clearToken, getUserProfile } from './api/client';
 import { SystemStatus } from './types';
 import { formatCurrency } from './utils/format';
+
+type Page = 'login' | 'register' | 'dashboard' | 'settings';
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -23,29 +27,19 @@ function formatDate(dateStr: string): string {
   });
 }
 
-function App() {
-  // ── Auth state ──────────────────────────────────────────────
-  const [authenticated, setAuthenticated] = useState(() => hasToken());
+/** Decode JWT payload to get the username without hitting the API */
+function getUsernameFromToken(): string | null {
+  try {
+    const token = localStorage.getItem('financeiro_token');
+    if (!token) return null;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.sub || payload.username || null;
+  } catch {
+    return null;
+  }
+}
 
-  const handleLogin = useCallback(() => {
-    setAuthenticated(true);
-  }, []);
-
-  const handleLogout = useCallback(() => {
-    clearToken();
-    setAuthenticated(false);
-  }, []);
-
-  // Listen for 401 unauthorized events from the API client
-  useEffect(() => {
-    const onUnauthorized = () => {
-      clearToken();
-      setAuthenticated(false);
-    };
-    window.addEventListener('auth:unauthorized', onUnauthorized);
-    return () => window.removeEventListener('auth:unauthorized', onUnauthorized);
-  }, []);
-
+function DashboardPage({ onNavigate }: { onNavigate: (page: Page) => void }) {
   // ── Theme ───────────────────────────────────────────────────
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -64,6 +58,22 @@ function App() {
   const [sysStatus, setSysStatus] = useState<SystemStatus | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
+
+  // Get user info from JWT
+  const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Try JWT decode first (fastest)
+    const name = getUsernameFromToken();
+    if (name) {
+      setUserName(name);
+    } else {
+      // Fall back to API
+      getUserProfile()
+        .then((profile) => setUserName(profile.display_name || profile.username))
+        .catch(() => setUserName(null));
+    }
+  }, []);
 
   // Fetch system status periodically
   const refreshStatus = useCallback(async () => {
@@ -113,12 +123,11 @@ function App() {
     ? `Última sincronização: ${formatDate(lastSync.synced_at)}`
     : 'Nunca sincronizado';
 
-  // ── Show login if not authenticated ─────────────────────────
-  if (!authenticated) {
-    return <LoginPage onLogin={handleLogin} />;
-  }
+  const handleLogout = () => {
+    clearToken();
+    onNavigate('login');
+  };
 
-  // ── Authenticated — render dashboard ────────────────────────
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       {/* Header */}
@@ -132,6 +141,13 @@ function App() {
               </h1>
             </div>
             <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
+              {/* User Name */}
+              {userName && (
+                <span className="hidden sm:inline text-sm text-gray-600 dark:text-gray-400 font-medium mr-1">
+                  👤 {userName}
+                </span>
+              )}
+
               {/* Connection Indicator */}
               <div className="hidden sm:flex items-center gap-1.5 text-xs px-2">
                 {isOnline ? (
@@ -146,6 +162,18 @@ function App() {
                   </>
                 )}
               </div>
+
+              {/* Settings Button */}
+              <button
+                onClick={() => onNavigate('settings')}
+                title="Configurações"
+                className="flex items-center justify-center w-9 h-9 rounded-lg
+                           text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700
+                           active:bg-gray-200 dark:active:bg-gray-600
+                           transition-colors text-lg"
+              >
+                ⚙️
+              </button>
 
               {/* Sync Button */}
               <button
@@ -185,6 +213,15 @@ function App() {
               <ThemeToggle isDark={isDark} onToggle={() => setIsDark(!isDark)} />
             </div>
           </div>
+
+          {/* User name on mobile */}
+          {userName && (
+            <div className="flex sm:hidden items-center gap-1 pb-1">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                👤 {userName}
+              </span>
+            </div>
+          )}
 
           {/* Sync message */}
           {syncMessage && (
@@ -294,6 +331,46 @@ function App() {
       </footer>
     </div>
   );
+}
+
+function App() {
+  // ── Auth state ──────────────────────────────────────────────
+  const [authenticated, setAuthenticated] = useState(() => hasToken());
+  const [page, setPage] = useState<Page>('dashboard');
+
+  const handleLogin = useCallback(() => {
+    setAuthenticated(true);
+    setPage('dashboard');
+  }, []);
+
+  // Listen for 401 unauthorized events from the API client
+  useEffect(() => {
+    const onUnauthorized = () => {
+      clearToken();
+      setAuthenticated(false);
+      setPage('login');
+    };
+    window.addEventListener('auth:unauthorized', onUnauthorized);
+    return () => window.removeEventListener('auth:unauthorized', onUnauthorized);
+  }, []);
+
+  // ── Routing logic ────────────────────────────────────────────
+
+  // Not authenticated → login
+  if (!authenticated) {
+    if (page === 'register') {
+      return <RegisterPage onRegister={() => setPage('login')} />;
+    }
+    return <LoginPage onLogin={handleLogin} onRegister={() => setPage('register')} />;
+  }
+
+  // Authenticated pages
+  if (page === 'settings') {
+    return <SettingsPage onBack={() => setPage('dashboard')} />;
+  }
+
+  // Default: dashboard
+  return <DashboardPage onNavigate={setPage} />;
 }
 
 export default App;

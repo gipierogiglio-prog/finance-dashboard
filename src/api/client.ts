@@ -85,6 +85,11 @@ export const api = {
       method: 'POST',
       body: body ? JSON.stringify(body) : undefined,
     }),
+  put: <T>(endpoint: string, body?: unknown) =>
+    fetchApi<T>(endpoint, undefined, {
+      method: 'PUT',
+      body: body ? JSON.stringify(body) : undefined,
+    }),
 };
 
 /** Login: post credentials and receive JWT token */
@@ -103,6 +108,35 @@ export async function login(username: string, password: string): Promise<string>
   const data = await res.json();
   saveToken(data.access_token);
   return data.access_token;
+}
+
+/** Register a new user */
+export async function register(username: string, password: string, displayName?: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password, display_name: displayName }),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.detail || 'Erro ao criar conta');
+  }
+}
+
+/** Get the current user's Pluggy config */
+export async function getPluggyConfig(): Promise<{ configured: boolean; hasItem: boolean }> {
+  return api.get('/user/pluggy-config');
+}
+
+/** Save Pluggy credentials */
+export async function savePluggyConfig(clientId: string, clientSecret: string): Promise<void> {
+  await api.put('/user/pluggy-config', { client_id: clientId, client_secret: clientSecret });
+}
+
+/** Get current user profile */
+export async function getUserProfile(): Promise<{ id: number; username: string; display_name?: string }> {
+  return api.get('/user/me');
 }
 
 /** Check API connection (public endpoint, no auth required) */

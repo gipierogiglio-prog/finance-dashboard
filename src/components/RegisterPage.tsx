@@ -1,27 +1,32 @@
 import React, { useState } from 'react';
-import { login } from '../api/client';
+import { register } from '../api/client';
 
-interface LoginPageProps {
-  onLogin: () => void;
-  onRegister?: () => void;
+interface RegisterPageProps {
+  onRegister: () => void;
 }
 
-export function LoginPage({ onLogin, onRegister }: LoginPageProps) {
+export function RegisterPage({ onRegister }: RegisterPageProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccess(false);
 
     try {
-      await login(username, password);
-      onLogin();
+      await register(username, password, displayName || undefined);
+      setSuccess(true);
+      setTimeout(() => {
+        onRegister();
+      }, 1500);
     } catch (err: any) {
-      setError(err.message || 'Erro ao fazer login. Verifique suas credenciais.');
+      setError(err.message || 'Erro ao criar conta');
     } finally {
       setLoading(false);
     }
@@ -34,30 +39,30 @@ export function LoginPage({ onLogin, onRegister }: LoginPageProps) {
         <div className="text-center mb-8">
           <span className="text-5xl block mb-3">💰</span>
           <h1 className="text-2xl font-bold text-white">Financeiro</h1>
-          <p className="text-blue-200 text-sm mt-1">Dashboard Financeiro</p>
+          <p className="text-blue-200 text-sm mt-1">Criar nova conta</p>
         </div>
 
-        {/* Login Card */}
+        {/* Register Card */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 sm:p-8">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6 text-center">
-            Acessar
+            Criar Conta
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Username */}
             <div>
               <label
-                htmlFor="username"
+                htmlFor="reg-username"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Usuário
               </label>
               <input
-                id="username"
+                id="reg-username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Digite seu usuário"
+                placeholder="Escolha um nome de usuário"
                 required
                 autoFocus
                 autoComplete="username"
@@ -69,22 +74,45 @@ export function LoginPage({ onLogin, onRegister }: LoginPageProps) {
               />
             </div>
 
+            {/* Display Name */}
+            <div>
+              <label
+                htmlFor="reg-display-name"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                Nome de Exibição <span className="text-gray-400 font-normal">(opcional)</span>
+              </label>
+              <input
+                id="reg-display-name"
+                type="text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="Como você quer ser chamado"
+                autoComplete="name"
+                className="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 
+                           bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                           placeholder-gray-400 dark:placeholder-gray-500
+                           focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                           outline-none transition-all text-sm"
+              />
+            </div>
+
             {/* Password */}
             <div>
               <label
-                htmlFor="password"
+                htmlFor="reg-password"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
               >
                 Senha
               </label>
               <input
-                id="password"
+                id="reg-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Digite sua senha"
+                placeholder="Escolha uma senha"
                 required
-                autoComplete="current-password"
+                autoComplete="new-password"
                 className="w-full px-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 
                            bg-white dark:bg-gray-700 text-gray-900 dark:text-white
                            placeholder-gray-400 dark:placeholder-gray-500
@@ -102,10 +130,19 @@ export function LoginPage({ onLogin, onRegister }: LoginPageProps) {
               </div>
             )}
 
+            {/* Success message */}
+            {success && (
+              <div className="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-lg px-3 py-2">
+                <p className="text-sm text-emerald-600 dark:text-emerald-400">
+                  ✅ Conta criada! Redirecionando para login...
+                </p>
+              </div>
+            )}
+
             {/* Submit button */}
             <button
               type="submit"
-              disabled={loading || !username || !password}
+              disabled={loading || success || !username || !password}
               className="w-full py-2.5 px-4 rounded-lg font-medium text-sm text-white
                          bg-blue-600 hover:bg-blue-700 active:bg-blue-800
                          disabled:opacity-50 disabled:cursor-not-allowed
@@ -115,26 +152,26 @@ export function LoginPage({ onLogin, onRegister }: LoginPageProps) {
               {loading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Entrando...</span>
+                  <span>Criando...</span>
                 </>
               ) : (
-                'Entrar'
+                'Criar Conta'
               )}
             </button>
           </form>
-        </div>
 
-        {/* Register link */}
-        <div className="mt-4 text-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Não tem uma conta?{' '}
-            <button
-              onClick={onRegister}
-              className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
-            >
-              Criar conta
-            </button>
-          </p>
+          {/* Login link */}
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Já tem uma conta?{' '}
+              <button
+                onClick={onRegister}
+                className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+              >
+                Fazer login
+              </button>
+            </p>
+          </div>
         </div>
 
         {/* Footer */}

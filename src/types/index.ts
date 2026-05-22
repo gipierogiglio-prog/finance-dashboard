@@ -64,3 +64,14 @@ export interface CategoryExpense {
   value: number;
   color: string;
 }
+
+export interface User {
+  id: number;
+  username: string;
+  displayName?: string;
+}
+
+export interface PluggyConfig {
+  configured: boolean;
+  hasItem: boolean;
+}
