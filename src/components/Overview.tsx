@@ -12,8 +12,8 @@ export function Overview({ accounts, summary }: OverviewProps) {
 
   // Filter credit card accounts
   const creditCards = accounts.filter((a) => a.type === 'CREDIT');
-  // First BANK account name for display
-  const firstBank = accounts.find((a) => a.type === 'BANK');
+  // BANK accounts
+  const bankAccounts = accounts.filter((a) => a.type === 'BANK');
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -26,9 +26,24 @@ export function Overview({ accounts, summary }: OverviewProps) {
         <p className="text-2xl font-bold text-gray-900 dark:text-white">
           {formatCurrency(summary.totalBalance)}
         </p>
-        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-          {firstBank?.name || 'Conta'}
-        </p>
+        <div className="mt-2 space-y-1.5">
+          {bankAccounts.length > 0 ? (
+            bankAccounts.map((acc) => (
+              <div key={acc.name} className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[120px] sm:max-w-[160px]">
+                    {acc.name}
+                  </span>
+                </div>
+                <span className="text-xs font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap ml-2">
+                  {formatCurrency(acc.balance)}
+                </span>
+              </div>
+            ))
+          ) : (
+            <p className="text-xs text-gray-400 dark:text-gray-500">Nenhuma conta bancária</p>
+          )}
+        </div>
       </div>
 
       {/* Cartões de Crédito */}
