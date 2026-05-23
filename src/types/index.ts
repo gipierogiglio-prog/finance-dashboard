@@ -90,3 +90,11 @@ export interface SyncResponse {
   message: string;
   sync_result?: SyncResult;
 }
+
+export interface ConnectedItem {
+  id: string;
+  item_id: string;
+  name: string;
+  status: string;
+  created_at: string;
+}

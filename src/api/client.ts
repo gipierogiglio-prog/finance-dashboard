@@ -6,6 +6,8 @@
 
 // Backend API base URL
 // Uses production URL if on financeiro domain, fallback for local dev
+import type { ConnectedItem } from '../types';
+
 const API_BASE = window.location.hostname.includes('financeiro')
   ? 'https://financeiro-api.devgiglio.uk/api'
   : 'http://localhost:8000/api';
@@ -90,6 +92,10 @@ export const api = {
       method: 'PUT',
       body: body ? JSON.stringify(body) : undefined,
     }),
+  delete: <T>(endpoint: string) =>
+    fetchApi<T>(endpoint, undefined, {
+      method: 'DELETE',
+    }),
 };
 
 /** Login: post credentials and receive JWT token */
@@ -137,6 +143,21 @@ export async function savePluggyConfig(clientId: string, clientSecret: string): 
 /** Get current user profile */
 export async function getUserProfile(): Promise<{ id: number; username: string; display_name?: string }> {
   return api.get('/user/me');
+}
+
+/** List all connected items (accounts) */
+export async function listItems(): Promise<ConnectedItem[]> {
+  return api.get('/items');
+}
+
+/** Add a new item */
+export async function addItem(itemId: string, name?: string): Promise<{ message: string; item: ConnectedItem }> {
+  return api.post('/items', { item_id: itemId, name });
+}
+
+/** Remove an item */
+export async function removeItem(itemId: string): Promise<{ message: string }> {
+  return api.delete('/items/' + itemId);
 }
 
 /** Check API connection (public endpoint, no auth required) */

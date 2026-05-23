@@ -9,12 +9,13 @@ import { ThemeToggle } from './components/ThemeToggle';
 import { LoginPage } from './components/LoginPage';
 import { RegisterPage } from './components/RegisterPage';
 import { SettingsPage } from './components/SettingsPage';
+import { AccountsPage } from './components/AccountsPage';
 import { useFinanceData, fetchSystemStatus, triggerSync } from './hooks/useFinanceData';
 import { hasToken, clearToken, getUserProfile } from './api/client';
 import { SystemStatus } from './types';
 import { formatCurrency } from './utils/format';
 
-type Page = 'login' | 'register' | 'dashboard' | 'settings';
+type Page = 'login' | 'register' | 'dashboard' | 'settings' | 'accounts';
 
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -162,6 +163,19 @@ function DashboardPage({ onNavigate }: { onNavigate: (page: Page) => void }) {
                   </>
                 )}
               </div>
+
+              {/* Accounts Button */}
+              <button
+                onClick={() => onNavigate('accounts')}
+                title="Contas"
+                className="flex items-center justify-center px-2 sm:px-3 py-2 sm:py-1.5 text-sm font-medium rounded-lg
+                           text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700
+                           active:bg-gray-200 dark:active:bg-gray-600
+                           transition-colors min-h-[44px]"
+              >
+                <span className="text-base">🏦</span>
+                <span className="hidden sm:inline ml-1">Contas</span>
+              </button>
 
               {/* Settings Button */}
               <button
@@ -367,6 +381,10 @@ function App() {
   // Authenticated pages
   if (page === 'settings') {
     return <SettingsPage onBack={() => setPage('dashboard')} />;
+  }
+
+  if (page === 'accounts') {
+    return <AccountsPage onBack={() => setPage('dashboard')} />;
   }
 
   // Default: dashboard
