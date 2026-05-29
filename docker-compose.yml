@@ -1,0 +1,16 @@
+name: devgiglio-finance-dashboard
+
+services:
+  finance-dashboard:
+    image: ghcr.io/gipierogiglio-prog/finance-dashboard:latest
+    container_name: devgiglio-finance-dashboard
+    restart: always
+    ports:
+      - "3003:80"
+    networks:
+      - devgiglio-network
+
+
+networks:
+  devgiglio-network:
+    external: true
